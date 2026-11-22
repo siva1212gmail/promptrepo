@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>{% block title %}{{ og_title|default:"Prompt Petti — Trending AI Prompts by @aswinthefilmer" }}{% endblock %}</title>
+    
+    <!-- Meta description -->
+    <meta name="description" content="{% block meta_description %}{{ og_description|default:'Trending image & video prompts for ChatGPT and Gemini — explained simply, with fresh drops every day.' }}{% endblock %}">
+    <meta name="theme-color" content="#0e0e0e">
+
+    <!-- Open Graph / WhatsApp / Instagram / Twitter Card -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ og_title|default:'Prompt Petti — Trending AI Prompts' }}">
+    <meta property="og:description" content="{{ og_description|default:'Trending image & video prompts for ChatGPT and Gemini — explained simply, with fresh drops every day.' }}">
+    {% if og_image %}
+    <meta property="og:image" content="{{ og_image }}">
+    {% endif %}
+    <meta property="og:url" content="{{ og_url|default:request.build_absolute_uri }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ og_title|default:'Prompt Petti — Trending AI Prompts' }}">
+    <meta name="twitter:description" content="{{ og_description|default:'Trending image & video prompts for ChatGPT and Gemini — explained simply, with fresh drops every day.' }}">
+    {% if og_image %}
+    <meta name="twitter:image" content="{{ og_image }}">
+    {% endif %}
+
+    <!-- Preload & Google Fonts: Anton, Manrope, JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body data-unlocked="{{ is_unlocked|yesno:'true,false' }}" data-next-drop="{{ next_drop_iso }}">
+    <!-- Toast notifications container -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- Main Content -->
+    {% block content %}{% endblock %}
+
+    <!-- Scripts -->
+    <script>
+        // Global configuration
+        window.PETTI_CONFIG = {
+            csrfToken: '{{ csrf_token }}',
+            youtubeUrl: '{{ youtube_channel_url|escapejs }}',
+            isUnlocked: {{ is_unlocked|yesno:'true,false' }},
+            nextDropIso: '{{ next_drop_iso }}',
+            initialPromptSlug: '{{ initial_prompt_slug|default:""|escapejs }}'
+        };
+    </script>
+    <script src="/static/js/slider.js"></script>
+    <script src="/static/js/app.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

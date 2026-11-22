@@ -1,0 +1,92 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block dash_content %}
+<div class="dash-prompts-view">
+    <div class="dash-page-title-row">
+        <div>
+            <h1 class="dash-page-title">MANAGE PROMPTS</h1>
+            <p class="dash-page-sub">Add, edit, schedule, and review AI prompt cards.</p>
+        </div>
+        <div class="dash-action-group">
+            <a href="{% url 'dashboard:prompt_add' %}" class="btn btn-lime">
+                + Add New Prompt
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Pills -->
+    <div class="dash-filter-pills">
+        <a href="{% url 'dashboard:prompts_list' %}?status=all" class="dash-filter-pill {% if status_filter == 'all' %}active{% endif %}">All</a>
+        <a href="{% url 'dashboard:prompts_list' %}?status=live" class="dash-filter-pill {% if status_filter == 'live' %}active{% endif %}">Live on Site</a>
+        <a href="{% url 'dashboard:prompts_list' %}?status=scheduled" class="dash-filter-pill {% if status_filter == 'scheduled' %}active{% endif %}">Scheduled (6 PM Queue)</a>
+        <a href="{% url 'dashboard:prompts_list' %}?status=draft" class="dash-filter-pill {% if status_filter == 'draft' %}active{% endif %}">Drafts / Unpublished</a>
+    </div>
+
+    <!-- Prompts Table / Cards -->
+    <div class="dash-table-wrap">
+        <table class="dash-table">
+            <thead>
+                <tr>
+                    <th>Media</th>
+                    <th>Title & Category</th>
+                    <th>Type</th>
+                    <th>Status & Schedule</th>
+                    <th>Likes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in prompts %}
+                <tr>
+                    <td class="td-thumb">
+                        {% if p.cover_image %}
+                        <img src="{{ p.cover_image.url }}" alt="{{ p.title }}" class="dash-table-thumb">
+                        {% else %}
+                        <span class="no-thumb">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong class="prompt-table-title">{{ p.title }}</strong>
+                        <div class="prompt-table-cat">{{ p.category.name }}</div>
+                    </td>
+                    <td>
+                        <span class="dash-type-pill pill-{{ p.type }}">{{ p.get_type_display|upper }}</span>
+                        {% if p.has_before_after %}
+                        <span class="dash-sub-pill">B/A</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not p.is_published %}
+                        <span class="status-indicator status-draft">Draft</span>
+                        {% elif p.publish_at > now %}
+                        <span class="status-indicator status-scheduled">Scheduled: {{ p.publish_at|date:"d M, H:i" }} IST</span>
+                        {% else %}
+                        <span class="status-indicator status-live">Live Drop</span>
+                        {% endif %}
+                    </td>
+                    <td>♥ {{ p.total_likes }}</td>
+                    <td class="td-actions">
+                        <div class="btn-group">
+                            <a href="{% url 'dashboard:prompt_edit' p.id %}" class="btn btn-sm btn-outline">Edit</a>
+                            {% if not p.is_live %}
+                            <form method="POST" action="{% url 'dashboard:prompt_publish_now' p.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-lime" title="Publish now">Publish ⚡</button>
+                            </form>
+                            {% endif %}
+                            <a href="{% url 'dashboard:prompt_delete' p.id %}" class="btn btn-sm btn-danger">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="dash-empty-cell">
+                        No prompts found matching this filter.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

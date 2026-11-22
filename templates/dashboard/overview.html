@@ -1,0 +1,159 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block dash_content %}
+<div class="dash-overview-view">
+    <div class="dash-page-title-row">
+        <div>
+            <h1 class="dash-page-title">CREATOR OVERVIEW</h1>
+            <p class="dash-page-sub">Manage drops, review subscriber requests, and schedule daily 6 PM drops.</p>
+        </div>
+        <div class="dash-action-group">
+            <a href="{% url 'dashboard:prompt_add' %}" class="btn btn-lime">
+                + Add New Prompt
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards Row -->
+    <div class="dash-stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">TOTAL PROMPTS</span>
+            <div class="stat-value">{{ total_prompts }}</div>
+            <span class="stat-footnote">{{ live_prompts }} live on site</span>
+        </div>
+
+        <div class="stat-card stat-card-highlight">
+            <span class="stat-label">SCHEDULED DROPS</span>
+            <div class="stat-value lime-text">{{ scheduled_count }}</div>
+            <span class="stat-footnote">Queued for upcoming 6 PM IST</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">TOTAL AUDIENCE LIKES</span>
+            <div class="stat-value">♥ {{ total_likes }}</div>
+            <span class="stat-footnote">Base + real visitor toggles</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">NEW REQUESTS</span>
+            <div class="stat-value">{{ new_requests }}</div>
+            <span class="stat-footnote">{{ total_requests }} total requests</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">TODAY'S UNLOCKS</span>
+            <div class="stat-value">{{ today_unlocks }}</div>
+            <span class="stat-footnote">Displayed to visitors today</span>
+        </div>
+    </div>
+
+    <!-- Upcoming Drops Queue Section -->
+    <div class="dash-section-box">
+        <div class="dash-section-header">
+            <div>
+                <h2 class="dash-section-title">UPCOMING SCHEDULE QUEUE (6:00 PM IST)</h2>
+                <p class="dash-section-sub">Drops scheduled in advance. The public site automatically reveals them when the drop time arrives.</p>
+            </div>
+            <a href="{% url 'dashboard:prompt_add' %}" class="btn btn-sm btn-outline">+ Queue Next Drop</a>
+        </div>
+
+        {% if scheduled_prompts %}
+        <div class="schedule-queue-list">
+            {% for item in scheduled_prompts %}
+            <div class="queue-item">
+                <div class="queue-thumb-wrap">
+                    {% if item.cover_image %}
+                    <img src="{{ item.cover_image.url }}" alt="{{ item.title }}" class="queue-thumb">
+                    {% endif %}
+                </div>
+                <div class="queue-info">
+                    <span class="queue-pill">{{ item.get_type_display|upper }} · {{ item.category.name }}</span>
+                    <h3 class="queue-title">{{ item.title }}</h3>
+                    <div class="queue-time">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>Scheduled: {{ item.publish_at|date:"d M Y, h:i A" }} IST</span>
+                    </div>
+                </div>
+                <div class="queue-actions">
+                    <form method="POST" action="{% url 'dashboard:prompt_publish_now' item.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-lime">Publish Now ⚡</button>
+                    </form>
+                    <a href="{% url 'dashboard:prompt_edit' item.id %}" class="btn btn-sm btn-outline">Edit</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="dash-empty-box">
+            <p>No upcoming drops queued right now. Keep your queue filled so fresh drops release automatically every day at 6 PM IST!</p>
+            <a href="{% url 'dashboard:prompt_add' %}" class="btn btn-lime btn-sm">+ Schedule Tomorrow's Drop</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Requests & Recent Prompts Split -->
+    <div class="dash-split-row">
+        <!-- Recent Requests -->
+        <div class="dash-section-box">
+            <div class="dash-section-header">
+                <h2 class="dash-section-title">RECENT AUDIENCE REQUESTS</h2>
+                <a href="{% url 'dashboard:requests_list' %}" class="dash-more-link">View All ({{ total_requests }}) →</a>
+            </div>
+
+            <div class="mini-requests-list">
+                {% for req in recent_requests %}
+                <div class="mini-request-item status-{{ req.status }}">
+                    <div class="mini-req-header">
+                        <span class="mini-req-name">{{ req.name_or_handle|default:"Anonymous Creator" }}</span>
+                        <span class="status-badge badge-{{ req.status }}">{{ req.status|upper }}</span>
+                    </div>
+                    <p class="mini-req-text">"{{ req.text }}"</p>
+                    <div class="mini-req-footer">
+                        <span class="mini-req-time">{{ req.created_at|timesince }} ago</span>
+                        {% if req.status == 'new' %}
+                        <form method="POST" action="{% url 'dashboard:request_mark_done' req.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="link-btn">Mark Done ✓</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p class="dash-empty-muted">No requests yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Prompts -->
+        <div class="dash-section-box">
+            <div class="dash-section-header">
+                <h2 class="dash-section-title">RECENT PROMPTS</h2>
+                <a href="{% url 'dashboard:prompts_list' %}" class="dash-more-link">All Prompts →</a>
+            </div>
+
+            <div class="mini-prompts-list">
+                {% for p in recent_prompts %}
+                <div class="mini-prompt-item">
+                    <div class="mini-prompt-thumb-wrap">
+                        {% if p.cover_image %}
+                        <img src="{{ p.cover_image.url }}" alt="{{ p.title }}" class="mini-thumb">
+                        {% endif %}
+                    </div>
+                    <div class="mini-prompt-info">
+                        <h4 class="mini-prompt-title">{{ p.title }}</h4>
+                        <span class="mini-prompt-meta">{{ p.category.name }} · ♥ {{ p.total_likes }}</span>
+                    </div>
+                    <a href="{% url 'dashboard:prompt_edit' p.id %}" class="btn btn-sm btn-outline">Edit</a>
+                </div>
+                {% empty %}
+                <p class="dash-empty-muted">No prompts found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

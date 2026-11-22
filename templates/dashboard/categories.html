@@ -1,0 +1,62 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block dash_content %}
+<div class="dash-categories-view">
+    <div class="dash-page-title-row">
+        <div>
+            <h1 class="dash-page-title">PROMPT CATEGORIES</h1>
+            <p class="dash-page-sub">Manage categories with clean capitalization (e.g. Portrait, Couple Prompts, Festive, Birthday, Cinematic, General, Stories, Surreal).</p>
+        </div>
+    </div>
+
+    <div class="dash-split-row">
+        <!-- Add Category Form -->
+        <div class="dash-section-box flex-1">
+            <h2 class="dash-section-title">+ ADD NEW CATEGORY</h2>
+            <form method="POST" class="dash-stacked-form" style="margin-top:1rem;">
+                {% csrf_token %}
+                <div class="form-field-wrap">
+                    <label for="id_cat_name">Category Name <span class="required">*</span></label>
+                    <input type="text" id="id_cat_name" name="name" class="form-input" required placeholder="e.g. Anime Aesthetics">
+                </div>
+                <div class="form-field-wrap">
+                    <label for="id_cat_order">Display Order</label>
+                    <input type="number" id="id_cat_order" name="order" class="form-input" value="10">
+                </div>
+                <button type="submit" class="btn btn-lime">Add Category</button>
+            </form>
+        </div>
+
+        <!-- Categories List -->
+        <div class="dash-section-box flex-2">
+            <h2 class="dash-section-title">EXISTING CATEGORIES</h2>
+            <div class="dash-table-wrap" style="margin-top:1rem;">
+                <table class="dash-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Name</th>
+                            <th>Slug</th>
+                            <th>Prompts Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in categories %}
+                        <tr>
+                            <td>{{ c.order }}</td>
+                            <td><strong>{{ c.name }}</strong></td>
+                            <td class="text-muted">{{ c.slug }}</td>
+                            <td>{{ c.prompts.count }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="dash-empty-cell">No categories found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

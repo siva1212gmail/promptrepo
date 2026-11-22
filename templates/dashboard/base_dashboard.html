@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>{% block title %}Creator Dashboard — Prompt Petti{% endblock %}</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="dashboard-body">
+    <!-- Dashboard Header / Nav -->
+    <header class="dash-header">
+        <div class="dash-brand">
+            <a href="{% url 'dashboard:overview' %}" class="dash-logo">
+                <span class="brand-icon">P</span>
+                <span class="brand-text">PETTI <span class="lime-text">CREATOR</span></span>
+            </a>
+            <span class="dash-influencer-tag">@aswinthefilmer</span>
+        </div>
+
+        <nav class="dash-nav">
+            <a href="{% url 'dashboard:overview' %}" class="dash-link {% if active_tab == 'overview' %}active{% endif %}">Overview</a>
+            <a href="{% url 'dashboard:prompts_list' %}" class="dash-link {% if active_tab == 'prompts' %}active{% endif %}">Prompts</a>
+            <a href="{% url 'dashboard:requests_list' %}" class="dash-link {% if active_tab == 'requests' %}active{% endif %}">Requests</a>
+            <a href="{% url 'dashboard:categories' %}" class="dash-link {% if active_tab == 'categories' %}active{% endif %}">Categories</a>
+            <a href="{% url 'dashboard:settings' %}" class="dash-link {% if active_tab == 'settings' %}active{% endif %}">Settings</a>
+            <a href="/" target="_blank" class="dash-link view-site-link">View Public Site ↗</a>
+        </nav>
+    </header>
+
+    <main class="dash-main-container">
+        <!-- Django Messages -->
+        {% if messages %}
+        <div class="dash-messages">
+            {% for message in messages %}
+            <div class="dash-alert dash-alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block dash_content %}{% endblock %}
+    </main>
+</body>
+</html>

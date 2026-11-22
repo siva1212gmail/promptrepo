@@ -1,0 +1,95 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block dash_content %}
+<div class="dash-requests-view">
+    <div class="dash-page-title-row">
+        <div>
+            <h1 class="dash-page-title">PROMPT REQUESTS</h1>
+            <p class="dash-page-sub">Audience suggestions submitted through the anonymous request box.</p>
+        </div>
+        <div class="dash-action-group">
+            <a href="{% url 'dashboard:requests_export_csv' %}" class="btn btn-outline">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Export CSV</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Status Filter Pills -->
+    <div class="dash-filter-pills">
+        <a href="{% url 'dashboard:requests_list' %}?status=all" class="dash-filter-pill {% if status_filter == 'all' %}active{% endif %}">All</a>
+        <a href="{% url 'dashboard:requests_list' %}?status=new" class="dash-filter-pill {% if status_filter == 'new' %}active{% endif %}">New</a>
+        <a href="{% url 'dashboard:requests_list' %}?status=seen" class="dash-filter-pill {% if status_filter == 'seen' %}active{% endif %}">Seen</a>
+        <a href="{% url 'dashboard:requests_list' %}?status=done" class="dash-filter-pill {% if status_filter == 'done' %}active{% endif %}">Done</a>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="dash-table-wrap">
+        <table class="dash-table">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Requester</th>
+                    <th>Request Idea</th>
+                    <th>Attachment / Link</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in requests %}
+                <tr>
+                    <td>
+                        <span class="status-badge badge-{{ r.status }}">{{ r.status|upper }}</span>
+                    </td>
+                    <td>
+                        <strong>{{ r.name_or_handle|default:"Anonymous" }}</strong>
+                    </td>
+                    <td class="td-request-text">
+                        "{{ r.text }}"
+                    </td>
+                    <td>
+                        {% if r.reference_image %}
+                        <a href="{{ r.reference_image.url }}" target="_blank" rel="noopener noreferrer">
+                            <img src="{{ r.reference_image.url }}" alt="Ref" class="dash-table-thumb" style="width:40px;height:40px;">
+                        </a>
+                        {% endif %}
+                        {% if r.reference_link %}
+                        <a href="{{ r.reference_link }}" target="_blank" rel="noopener noreferrer" class="link-external">
+                            Link ↗
+                        </a>
+                        {% endif %}
+                        {% if not r.reference_image and not r.reference_link %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted text-nowrap">
+                        {{ r.created_at|date:"d M, H:i" }}
+                    </td>
+                    <td>
+                        {% if r.status != 'done' %}
+                        <form method="POST" action="{% url 'dashboard:request_mark_done' r.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-lime">Mark Done ✓</button>
+                        </form>
+                        {% else %}
+                        <span class="text-muted">Completed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="dash-empty-cell">
+                        No requests found for this filter.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

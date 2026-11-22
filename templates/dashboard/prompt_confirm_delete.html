@@ -1,0 +1,17 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block dash_content %}
+<div class="dash-delete-confirm-box">
+    <h2 class="dash-section-title">CONFIRM DELETE</h2>
+    <p>Are you sure you want to permanently delete the prompt:</p>
+    <div class="delete-item-title">"{{ prompt.title }}"</div>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <div class="btn-group" style="margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-danger">Yes, Delete Permanently</button>
+            <a href="{% url 'dashboard:prompts_list' %}" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,573 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Floating Navbar -->
+<header class="navbar-wrapper">
+    <nav class="navbar" aria-label="Main Navigation">
+        <!-- Logo -->
+        <a href="/" class="nav-brand" aria-label="Prompt Petti Home">
+            <span class="brand-icon">P</span>
+            <div class="brand-text-wrap">
+                <span class="brand-title">PROMPT <span class="lime-text">PETTI</span></span>
+                <span class="brand-sub">Made with Emergent Labs</span>
+            </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <div class="nav-links">
+            <a href="#prompts" class="nav-link">Prompts</a>
+            <a href="#requests" class="nav-link">Requests</a>
+        </div>
+
+        <!-- Right Action Items -->
+        <div class="nav-actions">
+            <!-- Bookmark / Saved Button -->
+            <button id="nav-saved-btn" class="icon-btn" aria-label="View Saved Prompts" title="Saved Prompts">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span id="saved-badge" class="badge-count" style="display: none;">0</span>
+            </button>
+
+            <!-- YouTube Channel Subscribe Pill Button -->
+            <a href="{{ youtube_channel_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-pill-lime nav-sub-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                <span>Subscribe</span>
+            </a>
+
+            <!-- Mobile Hamburger Toggle -->
+            <button id="mobile-menu-btn" class="hamburger-btn" aria-label="Toggle Navigation Menu" aria-expanded="false">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Drawer Menu -->
+    <div id="mobile-menu" class="mobile-menu" aria-hidden="true">
+        <a href="#prompts" class="mobile-nav-link" data-close-menu>Prompts</a>
+        <a href="#requests" class="mobile-nav-link" data-close-menu>Requests</a>
+        <a href="#saved" class="mobile-nav-link" id="mobile-saved-link" data-close-menu>Saved Prompts (<span class="mobile-saved-count">0</span>)</a>
+        <a href="{{ youtube_channel_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-lime mobile-menu-cta">
+            Subscribe on YouTube ↗
+        </a>
+        {% if user.is_staff %}
+        <a href="/dashboard/" class="mobile-nav-link staff-link">Influencer Dashboard</a>
+        {% endif %}
+    </div>
+</header>
+
+<!-- Main Wrapper -->
+<main class="page-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <!-- Left vertical label -->
+        <div class="hero-vertical-label" aria-hidden="true">
+            VOL.01 @ASWINTHEFILMER
+        </div>
+
+        <div class="hero-content">
+            <!-- New Trending Pill -->
+            <div class="pill-badge hero-pill">
+                <span class="pulse-dot"></span>
+                <span>NEW TRENDING PROMPTS EVERY DAY</span>
+            </div>
+
+            <!-- Big Condensed Headline -->
+            <h1 class="hero-headline">
+                <span class="headline-white">COPY IT.</span><br>
+                <span class="headline-lime">GENERATE IT.</span>
+            </h1>
+
+            <!-- Subtext -->
+            <p class="hero-subtext">
+                Trending image & video prompts for ChatGPT and Gemini — explained simply, with fresh drops every day.
+            </p>
+
+            <!-- Hero Action Buttons -->
+            <div class="hero-cta-group">
+                <a href="#prompts" class="btn btn-lime btn-large">
+                    Browse free prompts →
+                </a>
+                <a href="#requests" class="btn btn-outline btn-large">
+                    Request a prompt
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Mock Terminal Card -->
+        <div class="hero-terminal-wrap">
+            <div class="mock-terminal-card">
+                <div class="terminal-header">
+                    <div class="terminal-dots">
+                        <span class="dot dot-red"></span>
+                        <span class="dot dot-yellow"></span>
+                        <span class="dot dot-green"></span>
+                    </div>
+                    <div class="terminal-badge">TODAY — NEW DROP</div>
+                </div>
+
+                <div class="terminal-body">
+                    <div class="terminal-prompt-box">
+                        <span class="prompt-prefix">> prompt_model.generate:</span>
+                        <p id="terminal-typed-text" class="typed-text"></p>
+                        <span class="cursor" aria-hidden="true">|</span>
+                    </div>
+
+                    <!-- Action Chips -->
+                    <div class="terminal-chips">
+                        <button class="chip" id="terminal-copy-btn" title="Copy demo prompt">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            <span>Copy</span>
+                        </button>
+                        <a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" class="chip">
+                            <span>ChatGPT ↗</span>
+                        </a>
+                        <a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" class="chip">
+                            <span>Gemini ↗</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tilted Lime Marquee Ribbon -->
+    <div class="marquee-ribbon-wrapper">
+        <div class="marquee-ribbon" aria-hidden="true">
+            <div class="marquee-track">
+                <span>TRENDING ✦ DAILY DROP ✦ CHATGPT ✦ GEMINI ✦ VIDEO PROMPTS ✦ PORTRAIT ✦ CINEMATIC ✦ TRENDING ✦ DAILY DROP ✦ CHATGPT ✦ GEMINI ✦ VIDEO PROMPTS ✦ PORTRAIT ✦ CINEMATIC ✦ </span>
+                <span>TRENDING ✦ DAILY DROP ✦ CHATGPT ✦ GEMINI ✦ VIDEO PROMPTS ✦ PORTRAIT ✦ CINEMATIC ✦ TRENDING ✦ DAILY DROP ✦ CHATGPT ✦ GEMINI ✦ VIDEO PROMPTS ✦ PORTRAIT ✦ CINEMATIC ✦ </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 01 / DROP — TRENDING PROMPTS -->
+    <section id="prompts" class="section drop-section">
+        <div class="section-header">
+            <span class="section-mono-label">01 / DROP — TRENDING PROMPTS</span>
+            <p class="section-subtext">
+                Every prompt is free — no login, no limit. Subscribe on YouTube once to unlock them all.
+            </p>
+        </div>
+
+        <!-- Most Liked This Week Horizontal Scroll Row -->
+        <div class="most-liked-container">
+            <div class="most-liked-header">
+                <h3 class="subsection-title">MOST LIKED THIS WEEK</h3>
+                <span class="scroll-hint">Swipe sideways →</span>
+            </div>
+            <div class="horizontal-scroll-track" tabindex="0" role="region" aria-label="Most liked prompts this week">
+                {% for item in most_liked %}
+                <div class="ranked-card" data-prompt-id="{{ item.id }}" data-prompt-slug="{{ item.slug }}" role="button" tabindex="0" aria-label="Open prompt {{ item.title }}">
+                    <div class="rank-number">{{ forloop.counter|stringformat:"02d" }}</div>
+                    <div class="ranked-thumb-wrap">
+                        {% if item.cover_image %}
+                        <img src="{{ item.cover_image.url }}" alt="{{ item.title }}" loading="lazy" width="300" height="375" class="ranked-thumb">
+                        {% endif %}
+                        <div class="ranked-badge">{{ item.get_type_display|upper }}</div>
+                    </div>
+                    <div class="ranked-info">
+                        <h4 class="ranked-title">{{ item.title }}</h4>
+                        <div class="ranked-likes">♥ {{ item.total_likes }} THIS WEEK</div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="empty-muted">Fresh weekly picks dropping soon.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Glowing Lime-Bordered Bar: Daily Drop Countdown -->
+        <div class="countdown-bar">
+            <div class="countdown-left">
+                <span class="glowing-drop-icon">✦</span>
+                <span class="countdown-title">DAILY DROP · 6:00 PM IST</span>
+            </div>
+            <div class="countdown-right">
+                <span class="countdown-label">NEXT DROP IN:</span>
+                <div id="countdown-timer" class="countdown-timer" aria-live="off">
+                    <span id="cd-hours">00</span>:<span id="cd-minutes">00</span>:<span id="cd-seconds">00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Controls & Search -->
+        <div class="filter-controls-wrap">
+            <!-- Main Filter Pills -->
+            <div class="filter-pills-row" role="tablist">
+                <button class="filter-pill active" data-filter="all" role="tab" aria-selected="true">All</button>
+                <button class="filter-pill" data-filter="new" role="tab" aria-selected="false">New</button>
+                <button class="filter-pill" data-type="image" role="tab" aria-selected="false">Image</button>
+                <button class="filter-pill" data-type="video" role="tab" aria-selected="false">Video</button>
+                <button class="filter-pill" data-filter="liked" role="tab" aria-selected="false">Liked</button>
+            </div>
+
+            <!-- Live Debounced Search Box -->
+            <div class="search-box-wrap">
+                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="prompt-search-input" class="search-input" placeholder="Search prompts (e.g. Kathakali, Monsoon, Couple)..." aria-label="Search AI prompts">
+                <button id="search-clear-btn" class="search-clear-btn" style="display: none;" aria-label="Clear search">✕</button>
+            </div>
+        </div>
+
+        <!-- Category Chips Row -->
+        <div class="category-chips-scroll" role="group" aria-label="Categories">
+            <button class="category-chip active" data-category="all">
+                <span>All Categories</span>
+                <span class="chip-count">{{ total_live_count }}</span>
+            </button>
+            {% for cat in categories %}
+            <button class="category-chip" data-category="{{ cat.slug }}">
+                <span>{{ cat.name }}</span>
+                <span class="chip-count">{% for cid, count in category_counts.items %}{% if cid == cat.id %}{{ count }}{% endif %}{% endfor %}</span>
+            </button>
+            {% endfor %}
+        </div>
+
+        <!-- Server-Rendered Initial Prompt Grid for SEO & Instant Load -->
+        <div id="prompts-grid" class="prompts-grid" aria-live="polite">
+            {% for p in initial_prompts %}
+            <article class="prompt-card" data-prompt-id="{{ p.id }}" data-prompt-slug="{{ p.slug }}" tabindex="0" role="button" aria-label="View {{ p.title }}">
+                <div class="card-media-wrap">
+                    {% if p.cover_image %}
+                    <img src="{{ p.cover_image.url }}" alt="{{ p.title }}" loading="lazy" width="400" height="500" class="card-img">
+                    {% endif %}
+                    
+                    <div class="card-badges-top">
+                        <span class="badge badge-type">{{ p.get_type_display|upper }}</span>
+                        {% if p.has_before_after %}
+                        <span class="badge badge-ba">BEFORE / AFTER</span>
+                        {% endif %}
+                        {% if p.is_new %}
+                        <span class="badge badge-new">NEW</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="card-meta">
+                        <span class="card-category">{{ p.category.name|upper }}</span>
+                        <span class="card-likes" data-likes-for="{{ p.id }}">♥ {{ p.total_likes }}</span>
+                    </div>
+                    <h3 class="card-title">{{ p.title }}</h3>
+                </div>
+            </article>
+            {% empty %}
+            <div class="empty-state">
+                <p>No prompts found yet. Fresh drops arriving at 6:00 PM IST!</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Loading Skeleton / Infinite Scroll Sentinel -->
+        <div id="grid-loader" class="grid-loader" style="display: none;">
+            <div class="loader-spinner"></div>
+            <span>Loading fresh drops...</span>
+        </div>
+    </section>
+
+    <!-- Section 02 / REQUESTS — REQUEST A PROMPT -->
+    <section id="requests" class="section requests-section">
+        <div class="section-header">
+            <span class="section-mono-label">02 / REQUESTS — REQUEST A PROMPT</span>
+            <p class="section-subtext">
+                Got a specific scene, Tamil cinema vibe, or festival theme you want as a prompt? Drop it directly into my box.
+            </p>
+        </div>
+
+        <div class="request-box-container">
+            <form id="prompt-request-form" class="request-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <!-- Honeypot field for spam prevention -->
+                <input type="text" name="website_url_hp" class="hp-input" tabindex="-1" autocomplete="off">
+
+                <!-- Main prompt request textarea -->
+                <div class="form-group">
+                    <div class="label-with-counter">
+                        <label for="req-text">What should I drop next? <span class="required">*</span></label>
+                        <span id="char-counter" class="char-counter">0/180</span>
+                    </div>
+                    <textarea id="req-text" name="text" class="form-textarea" rows="3" maxlength="180" placeholder="e.g. Ghibli-style couple photo in Munnar rain with tea garden mist" required></textarea>
+                </div>
+
+                <!-- Name / Handle field -->
+                <div class="form-group">
+                    <label for="req-name">Your Name or Instagram @handle <span class="optional">(optional)</span></label>
+                    <input type="text" id="req-name" name="name_or_handle" class="form-input" placeholder="e.g. @karthik_cine">
+                </div>
+
+                <!-- Reference Attachment: Photo OR Link -->
+                <div class="form-group">
+                    <label>Reference Attachment <span class="optional">(optional: photo or link)</span></label>
+                    <div class="attachment-toggle-box">
+                        <div class="upload-btn-wrap">
+                            <label for="req-image" class="file-upload-label">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                <span id="upload-label-text">Choose photo (JPG, PNG, WebP &le; 5MB)</span>
+                            </label>
+                            <input type="file" id="req-image" name="reference_image" accept="image/*" class="file-input-hidden">
+                        </div>
+
+                        <!-- Image preview container -->
+                        <div id="image-preview-wrap" class="image-preview-wrap" style="display: none;">
+                            <img id="image-preview-elem" src="" alt="Selected reference preview" class="preview-img">
+                            <button type="button" id="remove-preview-btn" class="preview-remove-btn" title="Remove image">✕</button>
+                        </div>
+
+                        <div class="or-separator">OR</div>
+
+                        <input type="url" id="req-link" name="reference_link" class="form-input" placeholder="Paste link (Instagram, Pinterest, YouTube, etc.)">
+                    </div>
+                </div>
+
+                <button type="submit" id="request-submit-btn" class="btn btn-lime btn-large submit-btn">
+                    <span>Request</span>
+                </button>
+
+                <p class="form-security-note">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                    </svg>
+                    <span>No login needed. Only I can see what you send.</span>
+                </p>
+
+                <div id="request-status-msg" class="form-status-msg" style="display: none;"></div>
+            </form>
+        </div>
+
+        <!-- Big Lime CTA Block: "WANT TOMORROW'S PROMPT FIRST?" -->
+        <div class="lime-cta-card">
+            <div class="cta-left-content">
+                <h2 class="cta-headline">WANT TOMORROW'S PROMPT FIRST?</h2>
+                <p class="cta-subtext">Join 100K+ creators on YouTube for behind-the-scenes prompt tutorials and instant drop notifications.</p>
+                <a href="{{ youtube_channel_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-black-solid cta-btn">
+                    Subscribe on YouTube →
+                </a>
+            </div>
+
+            <!-- Geometric Squares Graphic Right Side -->
+            <div class="cta-right-graphic" aria-hidden="true">
+                <div class="geometric-grid">
+                    <span class="geo-square sq-1"></span>
+                    <span class="geo-square sq-2"></span>
+                    <span class="geo-square sq-3"></span>
+                    <span class="geo-square sq-4"></span>
+                    <span class="geo-square sq-5"></span>
+                    <span class="geo-square sq-6"></span>
+                </div>
+                <div class="cta-channel-tag">// Join the channel @aswinthefilmer</div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Footer -->
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <div class="brand-title">PROMPT <span class="lime-text">PETTI</span></div>
+            <p class="footer-bio">
+                Curated AI image & video prompts by @aswinthefilmer. Made for Tamil, Malayalam & Indian digital artists, creators, and cinema lovers.
+            </p>
+        </div>
+
+        <div class="footer-links-group">
+            <div class="footer-col">
+                <h4 class="footer-col-title">NAVIGATION</h4>
+                <a href="#prompts">Prompts</a>
+                <a href="#requests">Request a Prompt</a>
+                <a href="#" id="footer-saved-link">Saved Prompts</a>
+                {% if user.is_staff %}
+                <a href="/dashboard/" class="staff-link">Influencer Dashboard</a>
+                {% else %}
+                <a href="/admin/login/">Creator Login</a>
+                {% endif %}
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-col-title">CONNECT</h4>
+                <a href="{{ youtube_channel_url }}" target="_blank" rel="noopener noreferrer">YouTube Channel ↗</a>
+                <a href="{{ instagram_url }}" target="_blank" rel="noopener noreferrer">Instagram (@aswinthefilmer) ↗</a>
+                {% if whatsapp_url %}
+                <a href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer">WhatsApp Channel ↗</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>© 2026 Prompt Petti. All rights reserved. Curated with love by @aswinthefilmer.</p>
+        <button id="scroll-top-btn" class="scroll-top-btn" aria-label="Scroll back to top">↑ Back to Top</button>
+    </div>
+</footer>
+
+<!-- PROMPT DETAIL POPUP (MODAL / BOTTOM SHEET) -->
+<div id="prompt-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+        <!-- Close Button (Sticky top on mobile) -->
+        <button id="modal-close-btn" class="modal-close-btn" aria-label="Close prompt detail">
+            ✕
+        </button>
+
+        <div class="modal-body-layout">
+            <!-- Modal Left: Image / Video / Comparison Slider -->
+            <div class="modal-left-media">
+                <!-- Draggable Before/After comparison slider -->
+                <div id="modal-slider-container" class="before-after-slider" style="display: none;">
+                    <div class="slider-image-before">
+                        <img id="modal-before-img" src="" alt="Before image">
+                        <span class="slider-badge badge-before">BEFORE</span>
+                    </div>
+                    <div class="slider-image-after">
+                        <img id="modal-after-img" src="" alt="After image">
+                        <span class="slider-badge badge-after">AFTER</span>
+                    </div>
+                    <!-- Draggable divider handle -->
+                    <div class="slider-handle" id="slider-handle" tabindex="0" role="slider" aria-label="Before after comparison divider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+                        <div class="handle-line"></div>
+                        <div class="handle-circle">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Single Cover Image Container -->
+                <div id="modal-single-image-wrap" class="modal-single-image-wrap">
+                    <img id="modal-cover-img" src="" alt="Prompt preview" class="modal-cover-img">
+                </div>
+
+                <!-- Video Container -->
+                <div id="modal-video-wrap" class="modal-video-wrap" style="display: none;">
+                    <div class="video-placeholder-box">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#CCF20D" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <a id="modal-video-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-pill-lime">
+                            Watch Video Drop ↗
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Right: Details & Prompt Box -->
+            <div class="modal-right-details">
+                <div class="modal-meta-row">
+                    <span id="modal-category-label" class="modal-category-label">IMAGE PROMPT · CINEMATIC</span>
+                    <span id="modal-new-badge" class="badge badge-new" style="display: none;">NEW</span>
+                </div>
+
+                <h2 id="modal-title" class="modal-headline">Prompt Title</h2>
+
+                <!-- Action buttons: Like, Save, Share -->
+                <div class="modal-actions-bar">
+                    <button id="modal-like-btn" class="modal-btn" aria-label="Like this prompt">
+                        <span class="like-heart">♥</span>
+                        <span id="modal-like-count">0</span>
+                    </button>
+                    <button id="modal-save-btn" class="modal-btn" aria-label="Save this prompt">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <span id="modal-save-text">Save</span>
+                    </button>
+                    <button id="modal-share-btn" class="modal-btn" aria-label="Share prompt link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="18" cy="5" r="3"></circle>
+                            <circle cx="6" cy="12" r="3"></circle>
+                            <circle cx="18" cy="19" r="3"></circle>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                        </svg>
+                        <span>Share</span>
+                    </button>
+                </div>
+
+                <!-- PROMPT CONTENT BOX -->
+                <div class="prompt-box-wrapper">
+                    <!-- LOCKED STATE (Rendered when visitor has not unlocked) -->
+                    <div id="prompt-locked-state" class="prompt-locked-state">
+                        <div class="blurred-placeholder" aria-hidden="true">
+                            <p class="dummy-blur-text">
+                                Hyper-realistic cinematic 8K master shot of dramatic Indian temple festival in golden hour light, anamorphic lens flare, photorealistic rain reflections, octane render, intricate cultural details, volumetric smoke, high contrast cinematic grade...
+                            </p>
+                        </div>
+
+                        <div class="unlock-overlay-card">
+                            <div class="unlock-flow-buttons">
+                                <!-- Step 1: Subscribe button -->
+                                <a id="step1-subscribe-btn" href="{{ youtube_channel_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-lime btn-large unlock-step-btn">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                    </svg>
+                                    <span>1. Subscribe on YouTube</span>
+                                </a>
+
+                                <!-- Step 2: "I'm subscribed" button (revealed after clicking step 1) -->
+                                <button id="step2-unlock-btn" class="btn btn-outline btn-large unlock-step-btn" style="display: none;">
+                                    <span>2. I'm subscribed ✓</span>
+                                </button>
+                            </div>
+
+                            <div class="unlock-stats-row">
+                                <span class="unlock-dot">●</span>
+                                <span class="unlock-counter-text">{{ unlocked_today_count }} people unlocked today</span>
+                            </div>
+                            <p class="unlock-subtext">Free forever — do this once and every free prompt unlocks.</p>
+                        </div>
+                    </div>
+
+                    <!-- UNLOCKED STATE (Rendered / fetched smoothly after unlock) -->
+                    <div id="prompt-unlocked-state" class="prompt-unlocked-state" style="display: none;">
+                        <div class="unlocked-header">
+                            <span class="unlocked-badge">UNLOCKED PROMPT</span>
+                            <span class="unlocked-status">Ready to copy</span>
+                        </div>
+
+                        <div class="prompt-text-container">
+                            <p id="real-prompt-text" class="real-prompt-text"></p>
+                        </div>
+
+                        <!-- Action buttons: Copy, Open in ChatGPT, Open in Gemini -->
+                        <div class="prompt-action-chips">
+                            <button id="copy-real-prompt-btn" class="btn btn-lime btn-sm">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                <span id="copy-btn-label">Copy Prompt</span>
+                            </button>
+
+                            <button id="open-chatgpt-btn" class="btn btn-outline btn-sm">
+                                <span>Open in ChatGPT ↗</span>
+                            </button>
+
+                            <button id="open-gemini-btn" class="btn btn-outline btn-sm">
+                                <span>Open in Gemini ↗</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
