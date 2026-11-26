@@ -73,6 +73,48 @@ Visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser.
 
 ---
 
+## 🐳 Running with Docker
+
+You can run the entire project in a production-ready Docker container with zero setup:
+
+### Option A: Using Docker Compose (Recommended)
+
+```bash
+docker-compose up --build
+```
+*(or `docker compose up --build` if supported)*
+
+This single command will:
+1. Build the Python 3.11 image with Pillow and system graphics libraries.
+2. Automatically run database migrations.
+3. Automatically seed all 8 categories, 14 rich sample prompts, and the admin user (`admin` / `admin123`).
+4. Automatically collect static files with WhiteNoise.
+5. Launch Gunicorn on `http://localhost:8000`.
+
+To run in the background (detached):
+```bash
+docker-compose up -d --build
+```
+
+To stop:
+```bash
+docker-compose down
+```
+
+### Option B: Using Standalone Docker CLI
+
+```bash
+# 1. Build the Docker image
+docker build -t promptpetti .
+
+# 2. Run the container
+docker run -p 8000:8000 --name promptpetti_container promptpetti
+```
+
+Visit **[http://localhost:8000](http://localhost:8000)** in your browser!
+
+---
+
 ## 🔒 Security Rule: YouTube Unlock Mechanism
 
 Prompt Petti enforces a strict server-side security rule for protected prompt text:

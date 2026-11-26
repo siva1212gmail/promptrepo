@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: promptpetti_app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist uploaded media (cover images, before/after photos, request attachments)
+      - media_volume:/app/media
+      # Persist SQLite database file
+      - db_volume:/app
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-promptpetti-docker-key-2a)ab1@l&m6@(n5-z+vw5gk7o4$
+      - ALLOWED_HOSTS=*
+      - TIME_ZONE=Asia/Kolkata
+      # To switch to PostgreSQL container, uncomment DATABASE_URL below:
+      # - DATABASE_URL=postgres://petti_user:petti_pass@db:5432/petti_db
+
+  # Optional PostgreSQL container (uncomment to test with Postgres)
+  # db:
+  #   image: postgres:15-alpine
+  #   container_name: promptpetti_postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_DB=petti_db
+  #     - POSTGRES_USER=petti_user
+  #     - POSTGRES_PASSWORD=petti_pass
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+volumes:
+  media_volume:
+  db_volume:
+  # postgres_data:
